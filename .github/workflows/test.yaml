@@ -48,13 +48,20 @@ jobs:
         run: |
           coverage run -p -m pytest
 
+      - name: Upload coverage data
+        # if: ${{matrix.python-version == '3.12' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: covdata
+          path: .coverage.*
+
   docs:
     name: Test Docs
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     strategy:
       matrix:
-        python-version: ['3.9']
+        python-version: ['3.12']
     steps:
       - uses: actions/checkout@v3
 
@@ -75,3 +82,52 @@ jobs:
 
       - name: Test making docs
         run: mkdocs build
+
+  coverage:
+    name: Coverage
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install coverage[toml]
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v3
+        with:
+          name: covdata
+
+      - name: Combine
+        run: |
+          coverage combine
+
+      - name: Report coverage
+        run: |
+          coverage json
+          export TOTAL=$(python -c "import json;print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
+          echo "total=$TOTAL" >> $GITHUB_ENV
+          echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
+          echo $'\n```' >> $GITHUB_STEP_SUMMARY
+          coverage report >> $GITHUB_STEP_SUMMARY
+          echo $'\n```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Make badge
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: f635ee4ac999ce969fa1d23a57e006ae
+          filename: covbadge.json
+          label: Coverage
+          message: ${{ env.total }}%
+          minColorRange: 50
+          maxColorRange: 90
+          valColorRange: ${{ env.total }}

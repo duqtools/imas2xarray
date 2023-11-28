@@ -2,8 +2,8 @@
 [![Tests](https://github.com/duqtools/imas2xarray/actions/workflows/test.yaml/badge.svg)](https://github.com/duqtools/imas2xarray/actions/workflows/test.yaml)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/imas2xarray)](https://pypi.org/project/imas2xarray/)
 [![PyPI](https://img.shields.io/pypi/v/imas2xarray.svg?style=flat)](https://pypi.org/project/imas2xarray/)
-<!-- [![DOI](https://zenodo.org/badge/492734189.svg)](https://zenodo.org/badge/latestdoi/492734189) -->
-<!-- ![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/stefsmeets/ea916a5b3c3d9bc59065a7304e4ca707/raw/covbadge.json) -->
+<!-- [![DOI](https://zenodo.org/badge/FIXME.svg)](https://zenodo.org/badge/latestdoi/FIXME) -->
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/stefsmeets/f635ee4ac999ce969fa1d23a57e006ae/raw/covbadge.json)
 
 ![imas2xarray banner](https://raw.githubusercontent.com/duqtools/imas2xarray/main/src/imas2xarray/data/logo.png)
 
