@@ -13,6 +13,10 @@ from ._rebase import (
     standardize_grid_and_time,
 )
 
+__author__ = 'Stef Smeets'
+__email__ = 's.smeets@esciencecenter.nl'
+__version__ = '0.1.0'
+
 __all__ = [
     'EmptyVarError',
     'IDSMapping',

@@ -1,0 +1,169 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+# https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+[project]
+name = "imas2xarray"
+version = "0.1.0"
+description = "Dynamic uncertainty quantification for Tokamak reactor simulations modelling"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+	{name = "Stef Smeets", email = "s.smeets@esciencecenter.nl"},
+	{name = "Victor Azizi"},
+]
+keywords = [
+    "modelling",
+    "tokamak",
+    "fusion-reactor",
+    "imas",
+]
+license = {text = "Apache 2.0 License"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "importlib_resources; python_version<'3.10'",
+    "numpy",
+    "h5py",
+    "pydantic >= 2.0",
+    "pydantic-yaml >= 1.0",
+    "xarray",
+]
+
+[project.urls]
+homepage = "https://github.com/duqtools/imas2xarray"
+issues = "https://github.com/duqtools/imas2xarray/issues"
+documentation = "https://imas2xarray.readthedocs.io"
+changelog = "https://github.com/duqtools/imas2xarray/releases"
+
+[project.optional-dependencies]
+develop = [
+    "bump2version",
+    "ruff",
+    "pre-commit",
+    "coverage[toml]",
+    "nbmake",
+    "pytest",
+    "pytest-dependency",
+    "pycodestyle",
+]
+docs = [
+    "matplotlib",
+    "jinja2",
+    "markdown-include",
+    "mkdocs",
+    "mkdocs-click",
+    "mkdocs-jupyter",
+    "mkdocs-gen-files",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
+publishing = [
+    "twine",
+    "wheel",
+    "build",
+]
+imas = ["imas"]
+
+[project.scripts]
+
+[tool.setuptools]
+zip-safe = false
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = true
+
+[tool.coverage.run]
+branch = true
+source = ["imas2xarray"]
+concurrency = ["multiprocessing"]
+data_file = ".coverage"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["tests/helpers"]
+
+[tool.mypy]
+plugins = "pydantic.mypy"
+ignore_missing_imports = true
+files = ["imas2xarray", "tests"]
+allow_redefinition = true
+
+[[tool.mypy.overrides]]
+module = ["yaml.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["pkg_resources.*"]
+ignore_missing_imports = true
+
+[tool.yapf]
+blank_line_before_nested_class_or_def = "True"
+
+[tool.ruff]
+select = [
+	"F",  # Pyflakes
+	"E",  # pycodestyle (error)
+	"W",  # pycodestyle (warning)
+	"I",  # isort
+]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "I"]
+unfixable = []
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    ".venv",
+    "scripts",
+]
+per-file-ignores = {}
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+target-version = "py39"
+line-length = 96
+
+
+[tool.ruff.isort]
+known-first-party = ["imas2xarray"]
+required-imports = ["from __future__ import annotations"]
+
+[tool.isort]
+profile = "black"
