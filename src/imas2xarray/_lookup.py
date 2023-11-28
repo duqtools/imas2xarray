@@ -128,7 +128,7 @@ class VariableConfigLoader:
         Search order:
         1. environment variable
         (2. local directory, not sure if this should be implemented)
-        3. config home (first $XDG_CONFIG_HOME/duqtools then `$HOME/.config/duqtools`)
+        3. config home (first $XDG_CONFIG_HOME/imas2xarray then `$HOME/.config/imas2xarray`)
         4. fall back to variable definitions in package
         """
         for paths in (

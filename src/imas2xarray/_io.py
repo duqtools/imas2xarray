@@ -15,7 +15,6 @@ from ._rebase import squash_placeholders
 
 if TYPE_CHECKING:
     import xarray as xr
-
     from imas2array import IDSVariableModel
 
 
@@ -52,16 +51,15 @@ class H5Handle:
         ids: str = 'core_profiles',
         **kwargs,
     ) -> xr.Dataset:
-        """Get all variables that duqtools knows of from selected ids from the
-        dataset.
+        """Get all known variables from selected ids from the dataset.
 
         This function looks up the data location from the
-        `duqtools.config.var_lookup` table
+        `imas2xarray.var_lookup` table
 
         Parameters
         ----------
         variables : Sequence[IDSVariableModel]
-            Extra variables to load in addition to the ones known by duqtools.
+            Extra variables to load in addition to the ones known through the config.
         squash : bool
             Squash placeholder variables
 
@@ -95,7 +93,7 @@ class H5Handle:
         """Get variables from data set.
 
         This function looks up the data location from the
-        `duqtools.config.var_lookup` table, and returns
+        `imas2xarray.var_lookup` table, and returns
 
         Parameters
         ----------

@@ -1,6 +1,6 @@
-site_name: duqtools
-site_url: https://duqtools.readthedocs.io
-repo_url: https://github.com/duqtools/duqtools
+site_name: imas2xarray
+site_url: https://imas2xarray.readthedocs.io
+repo_url: https://github.com/duqtools/imas2array
 repo_name: GitHub
 
 nav:
@@ -67,5 +67,5 @@ plugins:
       - genvariables.py
 
 watch:
-  - src/duqtools
+  - src/imas2xarray
   - docs/
