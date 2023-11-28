@@ -4,8 +4,8 @@ import pytest
 import xarray as xr
 from idsmapping_sample_data import Sample
 
-from imas2array import IDSMapping
-from imas2array import IDSVariableModel as Variable
+from imas2xarray import IDSMapping
+from imas2xarray import IDSVariableModel as Variable
 
 TIME_VAR = Variable(
     name='time',
@@ -349,7 +349,7 @@ def test_2d_ion(sample_data, expected_dataset_2d_ion):
 
 
 def test_empty_var_ok(sample_data):
-    from imas2array import EmptyVarError
+    from imas2xarray import EmptyVarError
 
     EmptyVar = Variable(ids='core_profiles',
                         path='profiles_1d/*/empty',

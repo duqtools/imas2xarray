@@ -9,7 +9,7 @@
 
 # imas2xarray
 
-*imas2xarray* is a tool reading IMAS data in hdf5 format into an `xarray`.
+*imas2xarray* is a tool reading IMAS data in hdf5 format into `xarray`.
 
 To install:
 

@@ -1,6 +1,6 @@
 site_name: imas2xarray
 site_url: https://imas2xarray.readthedocs.io
-repo_url: https://github.com/duqtools/imas2array
+repo_url: https://github.com/duqtools/imas2xarray
 repo_name: GitHub
 
 nav:

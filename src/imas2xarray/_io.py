@@ -15,7 +15,8 @@ from ._rebase import squash_placeholders
 
 if TYPE_CHECKING:
     import xarray as xr
-    from imas2array import IDSVariableModel
+
+    from imas2xarray import IDSVariableModel
 
 
 class H5Handle:

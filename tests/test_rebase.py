@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 from idsmapping_sample_data import Sample
 
-from imas2array import (
+from imas2xarray import (
     IDSMapping,
     IDSVariableModel,
     rebase_on_grid,

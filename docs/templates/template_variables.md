@@ -1,13 +1,13 @@
 # Variables
 
-To access different variables, imas2xarray must know how to navigate the IMAS specification. The variable lookup table maps variable names, and specifies their dimensions. The lookup file is stored in yaml format, typically with the name `variables.yaml`. Imas2xarray includes a default [variables.yaml](https://github.com/duqtools/imas2array/blob/main/src/duqtools/data/variables.yaml), but you can also define your own.
+To access different variables, imas2xarray must know how to navigate the IMAS specification. The variable lookup table maps variable names, and specifies their dimensions. The lookup file is stored in yaml format, typically with the name `variables.yaml`. Imas2xarray includes a default [variables.yaml](https://github.com/duqtools/imas2xarray/blob/main/src/duqtools/data/variables.yaml), but you can also define your own.
 
 Imas2xarray looks for the `variables.yaml` file in the following locations, in this order:
 
 1. Via environment variable `$IMAS2XARRAY_VARIABLES`
 2. If not defined, look for `$XDG_CONFIG_HOME/imas2xarray/variables.yaml`
 3. If `$XDG_CONFIG_HOME` is not defined, look for `$HOME/.config/imas2xarray/variables.yaml`
-4. If not defined, fall back to the included [variables.yaml](https://github.com/duqtools/imas2array/blob/main/src/imas2xarray/data/variables.yaml), which contains a sensible list of defaults.
+4. If not defined, fall back to the included [variables.yaml](https://github.com/duqtools/imas2xarray/blob/main/src/imas2xarray/data/variables.yaml), which contains a sensible list of defaults.
 
 ## Squashing data
 

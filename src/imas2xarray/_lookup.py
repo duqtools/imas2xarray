@@ -10,8 +10,8 @@ from typing import Hashable, Sequence
 
 from pydantic_yaml import parse_yaml_raw_as
 
-from ..utils import groupby
 from ._models import IDSVariableModel, VariableConfigModel
+from ._utils import groupby
 
 if sys.version_info < (3, 10):
     from importlib_resources import files
@@ -105,7 +105,7 @@ class VariableConfigLoader:
     MODEL = VariableConfigModel
     VAR_DIR = 'imas2xarray'
     VAR_ENV = 'IMAS2XARRAY_VARDEF'
-    MODULE = files('imas2array.data')
+    MODULE = files('imas2xarray.data')
 
     def __init__(self):
         self.paths = self.get_config_path()
