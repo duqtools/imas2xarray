@@ -105,7 +105,7 @@ class VariableConfigLoader:
     MODEL = VariableConfigModel
     VAR_DIR = 'imas2xarray'
     VAR_ENV = 'IMAS2XARRAY_VARDEF'
-    MODULE = files('duqtools.imas2xarray.data')
+    MODULE = files('imas2array.data')
 
     def __init__(self):
         self.paths = self.get_config_path()

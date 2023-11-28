@@ -16,7 +16,7 @@ from ._rebase import squash_placeholders
 if TYPE_CHECKING:
     import xarray as xr
 
-    from duqtools.imas2xarray import IDSVariableModel
+    from imas2array import IDSVariableModel
 
 
 class H5Handle:
