@@ -6,8 +6,7 @@ repo_name: GitHub
 nav:
   - Home: index.md
   - Variables: variables.md
-  - Python API:
-    - Public API: api/index.md
+  - Python API: api/index.md
   - Contributing: CONTRIBUTING.md
   - Code of Conduct: CODE_OF_CONDUCT.md
   - 🔗 Source code: https://github.com/duqtools/imas2xarray
@@ -30,7 +29,6 @@ markdown_extensions:
   - attr_list
   - markdown_include.include:
       base_path: docs
-  - mkdocs-click
   - pymdownx.extra
   - pymdownx.arithmatex:
       generic: true
@@ -62,12 +60,10 @@ plugins:
           merge_init_into_class: yes
 - gen-files:
     scripts:
-      - docs/gendocs.py
       - docs/genvariables.py
 - mkdocs-jupyter:
     include_source: True
     ignore:
-      - gendocs.py
       - genvariables.py
 
 watch:
