@@ -61,13 +61,9 @@ develop = [
     "pycodestyle",
 ]
 docs = [
-    "matplotlib",
-    "jinja2",
     "markdown-include",
     "mkdocs",
-    "mkdocs-click",
     "mkdocs-jupyter",
-    "mkdocs-gen-files",
     "mkdocs-material",
     "mkdocstrings[python]",
 ]
@@ -160,10 +156,13 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py39"
 line-length = 96
 
-
 [tool.ruff.isort]
 known-first-party = ["imas2xarray"]
 required-imports = ["from __future__ import annotations"]
 
 [tool.isort]
 profile = "black"
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
