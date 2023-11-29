@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Sequence
 
 import h5py
+import numpy as np
 
 from ._lookup import var_lookup
-from ._mapping import IDSMapping
 from ._rebase import squash_placeholders
 
 if TYPE_CHECKING:
@@ -19,12 +19,71 @@ if TYPE_CHECKING:
     from imas2xarray import IDSVariableModel
 
 
+def deconstruct_path(path) -> tuple[str, list[slice]]:
+    h5path: list[str] = []
+    slices: list[slice] = []
+
+    delimiter = '&'
+    array_symbol = '[]'
+
+    for part in path.split('/'):
+        if part == '*':
+            slices.append(slice(None))
+            h5path[-1] += array_symbol
+        elif part.isdigit():
+            slices.append(slice(int(part)))
+            h5path[-1] += array_symbol
+        else:
+            h5path.append(part)
+
+    return delimiter.join(h5path), slices
+
+
+def to_xarray(
+    raw_data,
+    variables: Sequence[str | IDSVariableModel],
+    **kwargs,
+) -> xr.Dataset:
+    """Return dataset for given variables.
+
+    Parameters
+    ----------
+    raw_data : ...
+    variables : Sequence[str | IDSVariableModel]]
+        Dictionary of data variables
+
+    Returns
+    -------
+    ds : xr.Dataset
+        Return query as Dataset
+    """
+    xr_data_vars: dict[str, tuple[list[str], np.ndarray]] = {}
+
+    variables = var_lookup.lookup(variables)
+
+    for var in variables:
+        h5path, slices = deconstruct_path(var.path)
+
+        print(h5path, slices)
+
+        arr = raw_data[h5path]
+
+        if len(slices) == 0:
+            xr_data_vars[var.name] = (var.dims, arr)
+        else:
+            xr_data_vars[var.name] = ([*var.dims], arr[*slices])
+
+    ds = xr.Dataset(data_vars=xr_data_vars)  # type: ignore
+
+    return ds
+
+
 class H5Handle:
 
     def __init__(self, path: Path):
         self.path = Path(path)
 
-    def get(self, ids: str = 'core_profiles') -> IDSMapping:
+    def get(self, ids: str = 'core_profiles') -> h5py.File:
         """Map the data to a dict-like structure.
 
         Parameters
@@ -34,16 +93,12 @@ class H5Handle:
 
         Returns
         -------
-        IDSMapping
+        h5py.File
         """
         data_file = (self.path / ids).with_suffix('.h5')
         assert data_file.exists()
 
-        raw_data = h5py.File(data_file, 'r')[ids]
-
-        # TODO: Add missing interface between hdf5 and IDSMapping
-
-        return IDSMapping(raw_data)
+        return h5py.File(data_file, 'r')[ids]
 
     def get_all_variables(
         self,
@@ -125,9 +180,9 @@ class H5Handle:
 
         ids = var_models[0].ids
 
-        data_map = self.get(ids)
+        raw_data = self.get(ids)
 
-        ds = data_map.to_xarray(variables=var_models, **kwargs)
+        ds = to_xarray(raw_data, variables=var_models, **kwargs)
 
         if squash:
             ds = squash_placeholders(ds)
