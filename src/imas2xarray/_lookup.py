@@ -79,9 +79,7 @@ class VarLookup(UserDict):
         grouped_ids_vars = groupby(ids_vars, keyfunc=lambda var: var.ids)
         return grouped_ids_vars
 
-    def lookup(
-        self, variables: Sequence[(str | IDSVariableModel)]
-    ) -> list[IDSVariableModel]:
+    def lookup(self, variables: Sequence[(str | IDSVariableModel)]) -> list[IDSVariableModel]:
         """Helper function to look up a bunch of variables.
 
         If str, look up the variable from the `var_lookup`. Else, check if
@@ -95,8 +93,7 @@ class VarLookup(UserDict):
                 else:
                     var = self[var]
             if not isinstance(var, IDSVariableModel):
-                raise ValueError(
-                    f'Cannot lookup variable with type {type(var)}')
+                raise ValueError(f'Cannot lookup variable with type {type(var)}')
             var_models.append(var)
         return var_models
 
@@ -132,9 +129,9 @@ class VariableConfigLoader:
         4. fall back to variable definitions in package
         """
         for paths in (
-                self._get_paths_from_environment_variable(),
-                self._get_paths_from_config_home(),
-                self._get_paths_local_directory(),
+            self._get_paths_from_environment_variable(),
+            self._get_paths_from_config_home(),
+            self._get_paths_local_directory(),
         ):
             if paths:
                 return paths
@@ -148,8 +145,7 @@ class VariableConfigLoader:
             drc = path.parent
 
             if not drc.exists():
-                raise OSError(
-                    f'{path} defined by ${self.VAR_ENV} does not exist!')
+                raise OSError(f'{path} defined by ${self.VAR_ENV} does not exist!')
 
             return tuple(drc.glob(path.name))
 
