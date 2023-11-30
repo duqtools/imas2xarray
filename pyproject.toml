@@ -112,9 +112,6 @@ ignore_missing_imports = true
 module = ["pkg_resources.*"]
 ignore_missing_imports = true
 
-[tool.yapf]
-blank_line_before_nested_class_or_def = "True"
-
 [tool.ruff]
 select = [
 	"F",  # Pyflakes

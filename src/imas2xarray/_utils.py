@@ -4,8 +4,7 @@ from collections import defaultdict
 from typing import Any, Callable, Hashable, Iterable
 
 
-def groupby(iterable: Iterable,
-            keyfunc: Callable) -> dict[Hashable, list[Any]]:
+def groupby(iterable: Iterable, keyfunc: Callable) -> dict[Hashable, list[Any]]:
     """Group iterable by key function. The items are grouped by the value that
     is returned by the `keyfunc`
 

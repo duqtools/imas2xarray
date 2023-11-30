@@ -26,7 +26,7 @@ class MissingVarError(Exception):
     ...
 
 
-def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, list[slice]]:
+def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]:
     """Deconstruct variable path into HDF5 key and slice operators.
 
     Parameters
@@ -57,7 +57,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, list[slice]]:
 
     key = delimiter.join(key_parts)
 
-    return key, slices
+    return key, tuple(slices)
 
 
 def to_xarray(path: str | Path, ids: str, variables: None | list[str] = None):
@@ -89,7 +89,6 @@ def to_xarray(path: str | Path, ids: str, variables: None | list[str] = None):
 
 
 class H5Handle:
-
     def __init__(self, path: Path | str):
         self.path = Path(path)
 
@@ -142,12 +141,8 @@ class H5Handle:
             When variables are from multiple IDSs.
         """
         idsvar_lookup = var_lookup.filter_ids(ids)
-        variables = list(
-            set(list(extra_variables) + list(idsvar_lookup.keys())))
-        return self.get_variables(variables,
-                                  squash,
-                                  ignore_missing=True,
-                                  **kwargs)
+        variables = list(set(list(extra_variables) + list(idsvar_lookup.keys())))
+        return self.get_variables(variables, squash, ignore_missing=True, **kwargs)
 
     def get_variables(
         self,
@@ -184,8 +179,7 @@ class H5Handle:
         idss = {var.ids for var in var_models}
 
         if len(idss) > 1:
-            raise ValueError(
-                f'All variables must belong to the same IDS, got {idss}')
+            raise ValueError(f'All variables must belong to the same IDS, got {idss}')
 
         ids = var_models[0].ids
 
@@ -231,7 +225,7 @@ class H5Handle:
         for var in variables:
             key, slices = _var_path_to_hdf5_key_and_slices(var.path)
 
-            if (key not in data_file):
+            if key not in data_file:
                 if missing_ok:
                     continue
                 raise MissingVarError(
@@ -241,13 +235,12 @@ class H5Handle:
             arr = data_file[key]
 
             if (not empty_ok) and (arr.size == 0):
-                raise EmptyVarError(
-                    f'Variable {var.name!r} contains empty data.')
+                raise EmptyVarError(f'Variable {var.name!r} contains empty data.')
 
             if len(slices) == 0:
                 xr_data_vars[var.name] = (var.dims, arr)
             else:
-                xr_data_vars[var.name] = ([*var.dims], arr[*slices])
+                xr_data_vars[var.name] = ([*var.dims], arr[slices])
 
         ds = xr.Dataset(data_vars=xr_data_vars)  # type: ignore
 

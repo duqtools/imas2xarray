@@ -29,8 +29,7 @@ def sort_var_groups_in_dict(dct):
 sort_var_groups_in_dict(grouped_ids_vars)
 sort_var_groups_in_dict(grouped_other_vars)
 
-rendered = template.render(ids_vars=grouped_ids_vars,
-                           other_vars=grouped_other_vars)
+rendered = template.render(ids_vars=grouped_ids_vars, other_vars=grouped_other_vars)
 
 filename = 'variables.md'
 

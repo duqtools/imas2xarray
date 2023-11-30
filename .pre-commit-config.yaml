@@ -20,12 +20,6 @@ repos:
     rev: v0.2.0
     hooks:
       - id: nbcheckorder
-  - repo: https://github.com/google/yapf
-    rev: v0.40.2
-    hooks:
-      - id: yapf
-        additional_dependencies:
-          - toml
   - repo: https://github.com/myint/docformatter
     rev: v1.7.5
     hooks:
@@ -35,7 +29,7 @@ repos:
     hooks:
       - id: ruff
         args: [--fix]
-      # - id: ruff-format
+      - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.1
     hooks:
