@@ -26,7 +26,7 @@ class MissingVarError(Exception):
     ...
 
 
-def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, list[slice]]:
+def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]:
     """Deconstruct variable path into HDF5 key and slice operators.
 
     Parameters
@@ -57,7 +57,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, list[slice]]:
 
     key = delimiter.join(key_parts)
 
-    return key, slices
+    return key, tuple(slices)
 
 
 def to_xarray(path: str | Path, ids: str, variables: None | list[str] = None):
@@ -240,7 +240,7 @@ class H5Handle:
             if len(slices) == 0:
                 xr_data_vars[var.name] = (var.dims, arr)
             else:
-                xr_data_vars[var.name] = ([*var.dims], arr[*slices])
+                xr_data_vars[var.name] = ([*var.dims], arr[slices])
 
         ds = xr.Dataset(data_vars=xr_data_vars)  # type: ignore
 
