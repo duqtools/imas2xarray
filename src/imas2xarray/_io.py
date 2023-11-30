@@ -53,6 +53,25 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, list[slice]]:
 
 
 def to_xarray(path: str | Path, ids: str, variables: None | list[str] = None):
+    """Load IDS from given path to IMAS data into an xarray dataset.
+
+    IMAS data must be in HDF5 format.
+
+    Parameters
+    ----------
+    path : str | Path
+        Path to the data
+    ids : str
+        The IDS to load (i.e. 'core_profiles')
+    variables : None | list[str], optional
+        List of variables to load. If None, attempt to load
+        all variables known to `imas2xarray`
+
+    Returns
+    -------
+    ds : xr.Dataset
+        Xarray dataset with all specified variables
+    """
     h = H5Handle(path)
 
     if variables:
