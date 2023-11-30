@@ -9,18 +9,29 @@ from typing import TYPE_CHECKING, Sequence
 
 import h5py
 import numpy as np
+import xarray as xr
 
 from ._lookup import var_lookup
 from ._rebase import squash_placeholders
 
 if TYPE_CHECKING:
-    import xarray as xr
-
-    from imas2xarray import IDSVariableModel
+    from ._models import IDSVariableModel
 
 
-def deconstruct_path(path) -> tuple[str, list[slice]]:
-    h5path: list[str] = []
+def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, list[slice]]:
+    """Deconstruct variable path into HDF5 key and slice operators.
+
+    Parameters
+    ----------
+    path : str
+        Path from `IDSVariableModel`
+
+    Returns
+    -------
+    tuple[str, list[slice]]
+        IMAS compatible path and data slicers
+    """
+    key_parts: list[str] = []
     slices: list[slice] = []
 
     delimiter = '&'
@@ -29,61 +40,33 @@ def deconstruct_path(path) -> tuple[str, list[slice]]:
     for part in path.split('/'):
         if part == '*':
             slices.append(slice(None))
-            h5path[-1] += array_symbol
+            key_parts[-1] += array_symbol
         elif part.isdigit():
             slices.append(slice(int(part)))
-            h5path[-1] += array_symbol
+            key_parts[-1] += array_symbol
         else:
-            h5path.append(part)
+            key_parts.append(part)
 
-    return delimiter.join(h5path), slices
+    key = delimiter.join(key_parts)
+
+    return key, slices
 
 
-def to_xarray(
-    raw_data,
-    variables: Sequence[str | IDSVariableModel],
-    **kwargs,
-) -> xr.Dataset:
-    """Return dataset for given variables.
+def to_xarray(path: str | Path, ids: str, variables: None | list[str] = None):
+    h = H5Handle(path)
 
-    Parameters
-    ----------
-    raw_data : ...
-    variables : Sequence[str | IDSVariableModel]]
-        Dictionary of data variables
-
-    Returns
-    -------
-    ds : xr.Dataset
-        Return query as Dataset
-    """
-    xr_data_vars: dict[str, tuple[list[str], np.ndarray]] = {}
-
-    variables = var_lookup.lookup(variables)
-
-    for var in variables:
-        h5path, slices = deconstruct_path(var.path)
-
-        print(h5path, slices)
-
-        arr = raw_data[h5path]
-
-        if len(slices) == 0:
-            xr_data_vars[var.name] = (var.dims, arr)
-        else:
-            xr_data_vars[var.name] = ([*var.dims], arr[*slices])
-
-    ds = xr.Dataset(data_vars=xr_data_vars)  # type: ignore
-
-    return ds
+    if variables:
+        return h.get_variables(variables=variables)
+    else:
+        return h.get_all_variables()
 
 
 class H5Handle:
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path | str):
         self.path = Path(path)
 
-    def get(self, ids: str = 'core_profiles') -> h5py.File:
+    def open_ids(self, ids: str = 'core_profiles') -> h5py.File:
         """Map the data to a dict-like structure.
 
         Parameters
@@ -115,29 +98,28 @@ class H5Handle:
         Parameters
         ----------
         variables : Sequence[IDSVariableModel]
-            Extra variables to load in addition to the ones known through the config.
+            Extra variables to load in addition to the ones known through the config
         squash : bool
             Squash placeholder variables
+        **kwargs
+            These keyword arguments are passed to `H5Handle.to_xarray()`
 
         Returns
         -------
         ds : xarray
             The data in `xarray` format.
-        **kwargs
-            These keyword arguments are passed to `IDSMapping.to_xarray()`
 
         Raises
         ------
         ValueError
             When variables are from multiple IDSs.
         """
-
         idsvar_lookup = var_lookup.filter_ids(ids)
         variables = list(
             set(list(extra_variables) + list(idsvar_lookup.keys())))
         return self.get_variables(variables,
                                   squash,
-                                  empty_var_ok=True,
+                                  ignore_missing=True,
                                   **kwargs)
 
     def get_variables(
@@ -157,13 +139,13 @@ class H5Handle:
             Variable names of the data to load.
         squash : bool
             Squash placeholder variables
+        **kwargs
+            These keyword arguments are passed to `IDSMapping.to_xarray()`
 
         Returns
         -------
         ds : xarray
             The data in `xarray` format.
-        **kwargs
-            These keyword arguments are passed to `IDSMapping.to_xarray()`
 
         Raises
         ------
@@ -180,11 +162,60 @@ class H5Handle:
 
         ids = var_models[0].ids
 
-        raw_data = self.get(ids)
+        data_file = self.open_ids(ids)
 
-        ds = to_xarray(raw_data, variables=var_models, **kwargs)
+        ds = self.to_xarray(data_file, variables=var_models, **kwargs)
 
         if squash:
             ds = squash_placeholders(ds)
+
+        return ds
+
+    @staticmethod
+    def to_xarray(
+        data_file: h5py.File,
+        variables: Sequence[str | IDSVariableModel],
+        ignore_missing: bool = False,
+        **kwargs,
+    ) -> xr.Dataset:
+        """Return dataset for given variables.
+
+        Parameters
+        ----------
+        data_file : h5py.File
+            Open hdf5 file
+        variables : Sequence[str | IDSVariableModel]]
+            Dictionary of data variables
+        ignore_missing : bool
+            Ignore missing variables from dataset
+
+        Returns
+        -------
+        ds : xr.Dataset
+            Return query as Dataset
+        """
+        xr_data_vars: dict[str, tuple[list[str], np.ndarray]] = {}
+
+        variables = var_lookup.lookup(variables)
+
+        for var in variables:
+            key, slices = _var_path_to_hdf5_key_and_slices(var.path)
+
+            try:
+                arr = data_file[key]
+            except KeyError:
+                msg = f'{var.path} does not exist in data file (HDF5 key: {key!r}) .'
+                if ignore_missing:
+                    print(msg)
+                    continue
+                else:
+                    raise KeyError(msg)
+
+            if len(slices) == 0:
+                xr_data_vars[var.name] = (var.dims, arr)
+            else:
+                xr_data_vars[var.name] = ([*var.dims], arr[*slices])
+
+        ds = xr.Dataset(data_vars=xr_data_vars)  # type: ignore
 
         return ds
