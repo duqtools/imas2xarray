@@ -18,6 +18,14 @@ if TYPE_CHECKING:
     from ._models import IDSVariableModel
 
 
+class EmptyVarError(Exception):
+    ...
+
+
+class MissingVarError(Exception):
+    ...
+
+
 def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, list[slice]]:
     """Deconstruct variable path into HDF5 key and slice operators.
 
@@ -194,7 +202,8 @@ class H5Handle:
     def to_xarray(
         data_file: h5py.File,
         variables: Sequence[str | IDSVariableModel],
-        ignore_missing: bool = False,
+        missing_ok: bool = False,
+        empty_ok: bool = False,
         **kwargs,
     ) -> xr.Dataset:
         """Return dataset for given variables.
@@ -205,8 +214,10 @@ class H5Handle:
             Open hdf5 file
         variables : Sequence[str | IDSVariableModel]]
             Dictionary of data variables
-        ignore_missing : bool
+        missing_ok : bool
             Ignore missing variables from dataset
+        empty_ok : bool
+            Add empty fields to output
 
         Returns
         -------
@@ -220,15 +231,18 @@ class H5Handle:
         for var in variables:
             key, slices = _var_path_to_hdf5_key_and_slices(var.path)
 
-            try:
-                arr = data_file[key]
-            except KeyError:
-                msg = f'{var.path} does not exist in data file (HDF5 key: {key!r}) .'
-                if ignore_missing:
-                    print(msg)
+            if (key not in data_file):
+                if missing_ok:
                     continue
-                else:
-                    raise KeyError(msg)
+                raise MissingVarError(
+                    f'{var.path} does not exist in data file (HDF5 key: {key!r}) .'
+                )
+
+            arr = data_file[key]
+
+            if (not empty_ok) and (arr.size == 0):
+                raise EmptyVarError(
+                    f'Variable {var.name!r} contains empty data.')
 
             if len(slices) == 0:
                 xr_data_vars[var.name] = (var.dims, arr)
