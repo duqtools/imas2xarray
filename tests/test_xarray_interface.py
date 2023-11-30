@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import pytest
 import xarray as xr
-from idsmapping_sample_data import Sample
+from idsmapping_sample_data import sample_data
 
-from imas2xarray import IDSMapping
+from imas2xarray import H5Handle
 from imas2xarray import IDSVariableModel as Variable
+from imas2xarray._io import EmptyVarError, MissingVarError
 
 TIME_VAR = Variable(
     name='time',
@@ -245,12 +246,7 @@ def expected_dataset_2d_ion():
     })
 
 
-@pytest.fixture
-def sample_data():
-    return IDSMapping(Sample)
-
-
-def test_no_time_index(sample_data, expected_dataset_no_index):
+def test_no_time_index(expected_dataset_no_index):
     variables = [
         TIME_VAR,
         Variable(
@@ -267,11 +263,11 @@ def test_no_time_index(sample_data, expected_dataset_no_index):
         ),
     ]
 
-    dataset = sample_data.to_xarray(variables=variables)
-    xr.testing.assert_equal(dataset, expected_dataset_no_index)
+    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    xr.testing.assert_equal(ds, expected_dataset_no_index)
 
 
-def test_0d(sample_data, expected_dataset_0d):
+def test_0d(expected_dataset_0d):
     variables = [
         Variable(
             name='xval',
@@ -280,12 +276,12 @@ def test_0d(sample_data, expected_dataset_0d):
             dims=['x'],
         ),
     ]
-    dataset = sample_data.to_xarray(variables=variables)
+    ds = H5Handle.to_xarray(sample_data, variables=variables)
 
-    xr.testing.assert_equal(dataset, expected_dataset_0d)
+    xr.testing.assert_equal(ds, expected_dataset_0d)
 
 
-def test_1d(sample_data, expected_dataset_1d):
+def test_1d(expected_dataset_1d):
     variables = [
         TIME_VAR,
         Variable(
@@ -302,11 +298,11 @@ def test_1d(sample_data, expected_dataset_1d):
         ),
     ]
 
-    dataset = sample_data.to_xarray(variables=variables)
-    xr.testing.assert_equal(dataset, expected_dataset_1d)
+    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    xr.testing.assert_equal(ds, expected_dataset_1d)
 
 
-def test_2d(sample_data, expected_dataset_2d):
+def test_2d(expected_dataset_2d):
     variables = [
         TIME_VAR,
         Variable(
@@ -323,11 +319,11 @@ def test_2d(sample_data, expected_dataset_2d):
         ),
     ]
 
-    dataset = sample_data.to_xarray(variables=variables)
-    xr.testing.assert_equal(dataset, expected_dataset_2d)
+    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    xr.testing.assert_equal(ds, expected_dataset_2d)
 
 
-def test_2d_ion(sample_data, expected_dataset_2d_ion):
+def test_2d_ion(expected_dataset_2d_ion):
     variables = [
         TIME_VAR,
         Variable(
@@ -344,33 +340,34 @@ def test_2d_ion(sample_data, expected_dataset_2d_ion):
         )
     ]
 
-    dataset = sample_data.to_xarray(variables=variables)
-    xr.testing.assert_equal(dataset, expected_dataset_2d_ion)
+    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    xr.testing.assert_equal(ds, expected_dataset_2d_ion)
 
 
-def test_empty_var_ok(sample_data):
-    from imas2xarray import EmptyVarError
-
+def test_empty_var_ok():
     EmptyVar = Variable(ids='core_profiles',
                         path='profiles_1d/*/empty',
                         dims=('time', 'x'),
                         name='empty')
 
     with pytest.raises(EmptyVarError):
-        sample_data.to_xarray(variables=(EmptyVar, ), empty_var_ok=False)
+        H5Handle.to_xarray(sample_data, variables=(EmptyVar, ), empty_ok=False)
 
-    dataset = sample_data.to_xarray(variables=(EmptyVar, ), empty_var_ok=True)
+    ds = H5Handle.to_xarray(sample_data, variables=(EmptyVar, ), empty_ok=True)
 
-    empty = {'coords': {}, 'attrs': {}, 'dims': {}, 'data_vars': {}}
-    assert dataset.to_dict() == empty
+    assert ds['empty'].size == 0
 
 
-def test_raise_on_non_existant(sample_data):
+def test_raise_on_non_existant():
     NonExistantVar = Variable(ids='core_profiles',
                               path='profiles_1d/*/does/not/exist',
                               dims=('time', 'x'),
                               name='does-not-exist')
 
-    with pytest.raises(KeyError):
-        sample_data.to_xarray(variables=(NonExistantVar, ), skip_empty=True)
-        sample_data.to_xarray(variables=(NonExistantVar, ), skip_empty=False)
+    with pytest.raises(MissingVarError):
+        H5Handle.to_xarray(sample_data,
+                           variables=(NonExistantVar, ),
+                           missing_ok=True)
+        H5Handle.to_xarray(sample_data,
+                           variables=(NonExistantVar, ),
+                           missing_ok=False)

@@ -3,10 +3,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import xarray as xr
-from idsmapping_sample_data import Sample
+from idsmapping_sample_data import sample_data
 
 from imas2xarray import (
-    IDSMapping,
+    H5Handle,
     IDSVariableModel,
     rebase_on_grid,
     rebase_on_time,
@@ -44,8 +44,7 @@ def variables1d():
 
 @pytest.fixture
 def sample_dataset(variables1d):
-    mapping = IDSMapping(Sample)
-    ds = mapping.to_xarray(variables=variables1d)
+    ds = H5Handle.to_xarray(sample_data, variables=variables1d)
     ds_grid = standardize_grid(ds, old_dim='x', new_dim='xvar', group='time')
     return ds_grid
 
