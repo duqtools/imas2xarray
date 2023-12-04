@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "imas2xarray"
 version = "0.1.0"
-description = "imas2xarray is a tool reading IMAS data in hdf5 format into xarray."
+description = "Imas2xarray is a tool reading IMAS data in hdf5 format into xarray."
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
