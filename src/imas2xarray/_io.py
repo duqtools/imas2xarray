@@ -26,7 +26,7 @@ class MissingVarError(Exception):
     ...
 
 
-def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]:
+def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice | int, ...]]:
     """Deconstruct variable path into HDF5 key and slice operators.
 
     Parameters
@@ -40,7 +40,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]
         IMAS compatible path and data slicers
     """
     key_parts: list[str] = []
-    slices: list[slice] = []
+    slices: list[slice | int] = []
 
     delimiter = '&'
     array_symbol = '[]'
@@ -50,7 +50,8 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]
             slices.append(slice(None))
             key_parts[-1] += array_symbol
         elif part.isdigit():
-            slices.append(slice(int(part)))
+            index = int(part)
+            slices.append(index)
             key_parts[-1] += array_symbol
         else:
             key_parts.append(part)
