@@ -124,7 +124,7 @@ class H5Handle:
 
         Parameters
         ----------
-        variables : Sequence[IDSVariableModel]
+        extra_variables : Sequence[IDSVariableModel]
             Extra variables to load in addition to the ones known through the config
         squash : bool
             Squash placeholder variables
