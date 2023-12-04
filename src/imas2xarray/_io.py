@@ -60,7 +60,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]
     return key, tuple(slices)
 
 
-def to_xarray(path: str | Path, ids: str, variables: None | list[str] = None):
+def to_xarray(path: str | Path, *, ids: str, variables: None | list[str] = None):
     """Load IDS from given path to IMAS data into an xarray dataset.
 
     IMAS data must be in HDF5 format.
@@ -142,7 +142,7 @@ class H5Handle:
         """
         idsvar_lookup = var_lookup.filter_ids(ids)
         variables = list(set(list(extra_variables) + list(idsvar_lookup.keys())))
-        return self.get_variables(variables, squash, ignore_missing=True, **kwargs)
+        return self.get_variables(variables, squash, missing_ok=True, **kwargs)
 
     def get_variables(
         self,
@@ -198,7 +198,6 @@ class H5Handle:
         variables: Sequence[str | IDSVariableModel],
         missing_ok: bool = False,
         empty_ok: bool = False,
-        **kwargs,
     ) -> xr.Dataset:
         """Return dataset for given variables.
 
