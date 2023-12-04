@@ -4,8 +4,7 @@ import pytest
 import xarray as xr
 from idsmapping_sample_data import sample_data
 
-from imas2xarray import H5Handle
-from imas2xarray import IDSVariableModel as Variable
+from imas2xarray import H5Handle, Variable
 from imas2xarray._io import EmptyVarError, MissingVarError
 
 TIME_VAR = Variable(

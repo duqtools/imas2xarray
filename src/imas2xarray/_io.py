@@ -26,7 +26,7 @@ class MissingVarError(Exception):
     ...
 
 
-def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]:
+def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice | int, ...]]:
     """Deconstruct variable path into HDF5 key and slice operators.
 
     Parameters
@@ -40,7 +40,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]
         IMAS compatible path and data slicers
     """
     key_parts: list[str] = []
-    slices: list[slice] = []
+    slices: list[slice | int] = []
 
     delimiter = '&'
     array_symbol = '[]'
@@ -50,7 +50,8 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]
             slices.append(slice(None))
             key_parts[-1] += array_symbol
         elif part.isdigit():
-            slices.append(slice(int(part)))
+            index = int(part)
+            slices.append(index)
             key_parts[-1] += array_symbol
         else:
             key_parts.append(part)
@@ -60,7 +61,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice, ...]]
     return key, tuple(slices)
 
 
-def to_xarray(path: str | Path, ids: str, variables: None | list[str] = None):
+def to_xarray(path: str | Path, *, ids: str, variables: None | Sequence[str] = None):
     """Load IDS from given path to IMAS data into an xarray dataset.
 
     IMAS data must be in HDF5 format.
@@ -111,7 +112,7 @@ class H5Handle:
 
     def get_all_variables(
         self,
-        extra_variables: Sequence[IDSVariableModel] = [],
+        extra_variables: None | Sequence[IDSVariableModel] = None,
         squash: bool = True,
         ids: str = 'core_profiles',
         **kwargs,
@@ -123,7 +124,7 @@ class H5Handle:
 
         Parameters
         ----------
-        variables : Sequence[IDSVariableModel]
+        extra_variables : Sequence[IDSVariableModel]
             Extra variables to load in addition to the ones known through the config
         squash : bool
             Squash placeholder variables
@@ -140,9 +141,11 @@ class H5Handle:
         ValueError
             When variables are from multiple IDSs.
         """
+        extra_variables = extra_variables or []
+
         idsvar_lookup = var_lookup.filter_ids(ids)
         variables = list(set(list(extra_variables) + list(idsvar_lookup.keys())))
-        return self.get_variables(variables, squash, ignore_missing=True, **kwargs)
+        return self.get_variables(variables, squash, missing_ok=True, **kwargs)
 
     def get_variables(
         self,
@@ -198,7 +201,6 @@ class H5Handle:
         variables: Sequence[str | IDSVariableModel],
         missing_ok: bool = False,
         empty_ok: bool = False,
-        **kwargs,
     ) -> xr.Dataset:
         """Return dataset for given variables.
 

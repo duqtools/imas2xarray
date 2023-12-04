@@ -7,14 +7,14 @@ from idsmapping_sample_data import sample_data
 
 from imas2xarray import (
     H5Handle,
-    IDSVariableModel,
+    Variable,
     rebase_on_grid,
     rebase_on_time,
     rezero_time,
     standardize_grid,
 )
 
-TIME_VAR = IDSVariableModel(
+TIME_VAR = Variable(
     name='time',
     ids='core_profiles',
     path='time',
@@ -26,13 +26,13 @@ TIME_VAR = IDSVariableModel(
 def variables1d():
     variables = [
         TIME_VAR,
-        IDSVariableModel(
+        Variable(
             name='xvar',
             ids='core_profiles',
             path='nested_profiles_1d/*/data/grid',
             dims=['time', 'x'],
         ),
-        IDSVariableModel(
+        Variable(
             name='yvar',
             ids='core_profiles',
             path='nested_profiles_1d/*/data/variable',

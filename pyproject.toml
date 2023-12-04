@@ -56,19 +56,18 @@ develop = [
     "ruff",
     "pre-commit",
     "coverage[toml]",
-    "nbmake",
     "pytest",
     "pytest-dependency",
     "pycodestyle",
 ]
 docs = [
-    "markdown-include",
     "jinja2",
+    "markdown-include",
     "mkdocs",
-    "mkdocs-jupyter",
     "mkdocs-gen-files",
     "mkdocs-material",
     "mkdocstrings[python]",
+    "mknotebooks",
 ]
 publishing = [
     "twine",
@@ -120,6 +119,7 @@ select = [
 	"I",  # isort
 ]
 ignore = []
+extend-include = ["*.ipynb"]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["A", "B", "C", "D", "E", "F", "I"]
