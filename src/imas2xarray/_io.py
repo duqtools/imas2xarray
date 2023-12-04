@@ -61,7 +61,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice | int,
     return key, tuple(slices)
 
 
-def to_xarray(path: str | Path, *, ids: str, variables: None | list[str] = None):
+def to_xarray(path: str | Path, *, ids: str, variables: None | Sequence[str] = None):
     """Load IDS from given path to IMAS data into an xarray dataset.
 
     IMAS data must be in HDF5 format.
@@ -112,7 +112,7 @@ class H5Handle:
 
     def get_all_variables(
         self,
-        extra_variables: Sequence[IDSVariableModel] = [],
+        extra_variables: None | Sequence[IDSVariableModel] = None,
         squash: bool = True,
         ids: str = 'core_profiles',
         **kwargs,
@@ -141,6 +141,8 @@ class H5Handle:
         ValueError
             When variables are from multiple IDSs.
         """
+        extra_variables = extra_variables or []
+
         idsvar_lookup = var_lookup.filter_ids(ids)
         variables = list(set(list(extra_variables) + list(idsvar_lookup.keys())))
         return self.get_variables(variables, squash, missing_ok=True, **kwargs)
