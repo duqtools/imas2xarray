@@ -1,4 +1,4 @@
-## Ploting example
+## Plotting example
 
 Below is an example of how to use **imas2xarray** to plot data with [matplotlib](https://matplotlib.org/).
 
