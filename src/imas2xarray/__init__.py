@@ -16,7 +16,7 @@ from ._rebase import (
 
 __author__ = 'Stef Smeets'
 __email__ = 's.smeets@esciencecenter.nl'
-__version__ = '__version__ = '0.1.0''
+__version__ = '0.1.0'
 
 __all__ = [
     'H5Handle',

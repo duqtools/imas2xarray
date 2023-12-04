@@ -3,9 +3,10 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/imas2xarray)](https://pypi.org/project/imas2xarray/)
 [![PyPI](https://img.shields.io/pypi/v/imas2xarray.svg?style=flat)](https://pypi.org/project/imas2xarray/)
 ![Coverage](https://gist.githubusercontent.com/stefsmeets/f635ee4ac999ce969fa1d23a57e006ae/raw/covbadge.svg)
-<!-- [![DOI](https://zenodo.org/badge/FIXME.svg)](https://zenodo.org/badge/latestdoi/FIXME) -->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10256040.svg)](https://doi.org/10.5281/zenodo.10256040)
 
 ![imas2xarray banner](https://raw.githubusercontent.com/duqtools/imas2xarray/main/src/imas2xarray/data/logo.png)
+
 
 # imas2xarray
 

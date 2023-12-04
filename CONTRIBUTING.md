@@ -103,4 +103,4 @@ If you are adding new pages, make sure to update the listing in the [`mkdocs.yml
 
 3. The [upload to pypi](https://pypi.org/project/imas2xarray) is triggered when a release is published and handled by [this workflow](https://github.com/duqtools/imas2xarray/actions/workflows/publish.yaml).
 
-4. The [upload to zenodo](https://zenodo.org/record/FIXME) is triggered when a release is published.
+4. The [upload to zenodo](https://zenodo.org/record/https://zenodo.org/doi/10.5281/zenodo.10256040) is triggered when a release is published.
