@@ -120,6 +120,7 @@ select = [
 	"I",  # isort
 ]
 ignore = []
+extend-include = ["*.ipynb"]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["A", "B", "C", "D", "E", "F", "I"]
