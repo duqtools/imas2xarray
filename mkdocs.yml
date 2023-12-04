@@ -7,6 +7,7 @@ nav:
   - Home: index.md
   - Variables: variables.md
   - Python API: api/index.md
+  - Plotting example: plotting_example.md
   - Contributing: CONTRIBUTING.md
   - Code of Conduct: CODE_OF_CONDUCT.md
   - 🔗 Source code: https://github.com/duqtools/imas2xarray
@@ -62,10 +63,10 @@ plugins:
 - gen-files:
     scripts:
       - docs/genvariables.py
-- mkdocs-jupyter:
-    include_source: True
-    ignore:
-      - genvariables.py
+# - mkdocs-jupyter:
+#     include_source: True
+#     ignore:
+#       - genvariables.py
 
 watch:
   - src/imas2xarray
