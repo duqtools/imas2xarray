@@ -52,7 +52,7 @@ changelog = "https://github.com/duqtools/imas2xarray/releases"
 
 [project.optional-dependencies]
 develop = [
-    "bump2version",
+    "bump-my-version",
     "ruff",
     "pre-commit",
     "coverage[toml]",
@@ -166,3 +166,21 @@ profile = "black"
 [tool.ruff.format]
 quote-style = "single"
 indent-style = "space"
+
+[tool.bumpversion]
+current_version = "0.1.0"
+
+[[tool.bumpversion.files]]
+filename = "src/imas2xarray/__init__.py"
+search = "__version__ = '{current_version}'"
+replace = "__version__ = '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = "version = \"{current_version}\""
+replace = "version = \"{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = "CITATION.cff"
+search = "version: {current_version}"
+replace = "version: {new_version}"
