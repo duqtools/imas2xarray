@@ -6,7 +6,7 @@ import os
 import sys
 from collections import UserDict
 from pathlib import Path, PosixPath
-from typing import Hashable, Sequence
+from typing import Any, Hashable, Sequence
 
 from pydantic_yaml import parse_yaml_raw_as
 
@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 USER_CONFIG_HOME = Path.home() / '.config'
 LOCAL_DIR = Path('.').absolute()
-VAR_FILENAME = 'variables.yaml'
 VAR_FILENAME_GLOB = 'variables*.yaml'
 ERROR_SUFFIX = '_error_upper'
 
@@ -99,22 +98,40 @@ class VarLookup(UserDict):
 
 
 class VariableConfigLoader:
-    MODEL = VariableConfigModel
-    VAR_DIR = 'imas2xarray'
-    VAR_ENV = 'IMAS2XARRAY_VARDEF'
-    MODULE = files('imas2xarray.data')
+    def __init__(
+        self,
+        *,
+        model: type = VariableConfigModel,
+        var_dir: str = 'imas2xarray',
+        var_env: str = 'IMAS2XARRAY_VARDEF',
+        module: Path | Any = files('imas2xarray.data'),
+    ):
+        self.model = model
+        self.var_dir = var_dir
+        self.var_env = var_env
+        self.module = module
 
-    def __init__(self):
         self.paths = self.get_config_path()
 
-    def load(self) -> VarLookup:
-        """Load the variables config."""
-        var_lookup = VarLookup()
+    def load(self, var_lookup: None | VarLookup = None) -> VarLookup:
+        """Load the variables config.
+
+        Parameters
+        ----------
+        var_lookup : None | VarLookup
+            Populate variable lookup table to initialize list of variables. Use
+            this to load variables from different locations
+
+        Returns:
+            VarLookup: Description
+        """
+        if not var_lookup:
+            var_lookup = VarLookup()
 
         for path in self.paths:
             logger.debug(f'Loading variables from: {path}')
             with open(path) as f:
-                var_config = parse_yaml_raw_as(self.MODEL, f)
+                var_config = parse_yaml_raw_as(self.model, f)
             var_lookup.update(var_config.to_variable_dict())
 
         return var_lookup
@@ -139,13 +156,13 @@ class VariableConfigLoader:
         return self._get_paths_fallback()
 
     def _get_paths_from_environment_variable(self) -> tuple[Path, ...] | None:
-        env = os.environ.get(self.VAR_ENV)
+        env = os.environ.get(self.var_env)
         if env:
             path = Path(env)
             drc = path.parent
 
             if not drc.exists():
-                raise OSError(f'{path} defined by ${self.VAR_ENV} does not exist!')
+                raise OSError(f'{path} defined by ${self.var_env} does not exist!')
 
             return tuple(drc.glob(path.name))
 
@@ -157,19 +174,19 @@ class VariableConfigLoader:
     def _get_paths_from_config_home(self) -> tuple[Path, ...] | None:
         config_home = os.environ.get('XDG_CONFIG_HOME', USER_CONFIG_HOME)
 
-        drc = Path(config_home) / self.VAR_DIR
+        drc = Path(config_home) / self.var_dir
         if drc.exists():
             return tuple(drc.glob(VAR_FILENAME_GLOB))
 
         return None
 
     def _get_paths_fallback(self) -> tuple[Path, ...]:
-        assert self.MODULE.is_dir()
+        assert self.module.is_dir()
 
-        if isinstance(self.MODULE, PosixPath):
-            drc = self.MODULE
+        if isinstance(self.module, PosixPath):
+            drc = self.module
         else:
-            drc = self.MODULE._paths[0]  # type: ignore
+            drc = self.module._paths[0]  # type: ignore
 
         return tuple(drc.glob(VAR_FILENAME_GLOB))
 
