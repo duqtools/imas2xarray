@@ -27,12 +27,13 @@ ERROR_SUFFIX = '_error_upper'
 
 
 class VarLookup(UserDict):
-    _prefix = '$'
     """Variable lookup table.
 
     Subclasses `UserDict` to embed some commonly used operations, like
     grouping and filtering.
     """
+
+    _prefix = '$'
     _ids_variable_key = 'IDS-variable'
 
     def __getitem__(self, key: str) -> IDSVariableModel:
@@ -119,11 +120,13 @@ class VariableConfigLoader:
         Parameters
         ----------
         var_lookup : None | VarLookup
-            Populate variable lookup table to initialize list of variables. Use
-            this to load variables from different locations
+            Populate initial variable lookup table with entries from this lookup table.
+            Use this to load variables from different locations.
 
-        Returns:
-            VarLookup: Description
+        Returns
+        -------
+        var_lookup : VarLookup
+            Variable lookup table
         """
         if not var_lookup:
             var_lookup = VarLookup()
