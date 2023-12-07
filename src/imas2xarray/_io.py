@@ -119,7 +119,7 @@ class H5Handle:
     def __init__(self, path: Path | str):
         self.path = Path(path)
 
-    def open_ids(self, ids: str = 'core_profiles') -> h5py.File:
+    def open_ids(self, ids: str = 'core_profiles', mode='r') -> h5py.File:
         """Map the data to a dict-like structure.
 
         Parameters
@@ -134,7 +134,7 @@ class H5Handle:
         data_file = (self.path / ids).with_suffix('.h5')
         assert data_file.exists()
 
-        return h5py.File(data_file, 'r')[ids]
+        return h5py.File(data_file, mode)[ids]
 
     def get_all_variables(
         self,
@@ -211,9 +211,12 @@ class H5Handle:
             if var.ids != ids:
                 raise ValueError(f'Variable {var} does not belong to {ids}.')
 
-        data_file = self.open_ids(ids)
+        # TODO: use with statement
+        group = self.open_ids(ids, 'r')
 
-        ds = self.to_xarray(data_file, variables=var_models, **kwargs)
+        ds = self.to_xarray(group, variables=var_models, **kwargs)
+
+        group.file.close()
 
         if squash:
             ds = squash_placeholders(ds)
@@ -287,4 +290,23 @@ class H5Handle:
         variables : Collection[str], optional
             Description
         """
-        pass
+        if not variables:
+            variables = list(dataset.variables)
+            # TODO: check variables in var_lookup
+
+        var_models = var_lookup.lookup(variables)
+
+        for var in var_models:
+            if var.ids != ids:
+                raise ValueError(f'Variable {var} does not belong to {ids}.')
+
+        group = self.open_ids(ids, 'r+')
+
+        for var in var_models:
+            arr = dataset[var.name]
+
+            key, slices = _var_path_to_hdf5_key_and_slices(var.path)
+
+            group[key][slices] = arr
+
+        group.file.close()
