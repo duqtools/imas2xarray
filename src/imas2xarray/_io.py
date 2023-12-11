@@ -88,9 +88,9 @@ def _mapping_to_xarray(
     """
     xr_data_vars: dict[str, tuple[list[str], np.ndarray]] = {}
 
-    variables = var_lookup.lookup(variables)
+    var_models = var_lookup.lookup(variables)
 
-    for var in variables:
+    for var in var_models:
         key, slices = _var_path_to_hdf5_key_and_slices(var.path)
 
         if key not in data_file:
@@ -262,6 +262,9 @@ class H5Handle:
             When variables are from different IDS.
         """
         var_models = var_lookup.lookup(variables)
+
+        dims = {dim for variable in var_models for dim in variable.dims}
+        var_models |= var_lookup.lookup(dims)
 
         for var in var_models:
             if var.ids != ids:

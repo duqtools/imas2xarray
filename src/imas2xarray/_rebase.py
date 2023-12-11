@@ -53,6 +53,9 @@ def squash_placeholders(ds: xr.Dataset) -> xr.Dataset:
     for var in placeholder_vars:
         new_dim = var.lstrip(prefix)
 
+        if new_dim not in ds:
+            raise KeyError(f'Cannot squash placeholder, `{new_dim}` not in dataset.')
+
         var_index = dimensions.index(var)
         group_dims = dimensions[:var_index]
 
