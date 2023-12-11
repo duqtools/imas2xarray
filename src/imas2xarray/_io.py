@@ -62,6 +62,59 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice | int,
     return key, tuple(slices)
 
 
+def _mapping_to_xarray(
+    data_file: h5py.File,
+    variables: Collection[str | IDSVariableModel],
+    missing_ok: bool = False,
+    empty_ok: bool = False,
+) -> xr.Dataset:
+    """Return dataset for given variables.
+
+    Parameters
+    ----------
+    data_file : h5py.File
+        Open hdf5 file
+    variables : Collection[str | IDSVariableModel]]
+        List of data variables
+    missing_ok : bool
+        Ignore missing variables from dataset
+    empty_ok : bool
+        Add empty fields to output
+
+    Returns
+    -------
+    ds : xr.Dataset
+        Return query as Dataset
+    """
+    xr_data_vars: dict[str, tuple[list[str], np.ndarray]] = {}
+
+    variables = var_lookup.lookup(variables)
+
+    for var in variables:
+        key, slices = _var_path_to_hdf5_key_and_slices(var.path)
+
+        if key not in data_file:
+            if missing_ok:
+                continue
+            raise MissingVarError(
+                f'{var.path} does not exist in data file (HDF5 key: {key!r}) .'
+            )
+
+        arr = data_file[key]
+
+        if (not empty_ok) and (arr.size == 0):
+            raise EmptyVarError(f'Variable {var.name!r} contains empty data.')
+
+        if len(slices) == 0:
+            xr_data_vars[var.name] = (var.dims, arr)
+        else:
+            xr_data_vars[var.name] = ([*var.dims], arr[slices])
+
+    ds = xr.Dataset(data_vars=xr_data_vars)
+
+    return ds
+
+
 def to_xarray(
     path: str | Path, *, ids: str, variables: None | Collection[str] = None
 ) -> xr.Dataset:
@@ -215,63 +268,10 @@ class H5Handle:
                 raise ValueError(f'Variable {var} does not belong to {ids}.')
 
         with self.open_ids(ids, 'r') as group:
-            ds = self.to_xarray(group, variables=var_models, **kwargs)
+            ds = _mapping_to_xarray(group, variables=var_models, **kwargs)
 
         if squash:
             ds = squash_placeholders(ds)
-
-        return ds
-
-    @staticmethod
-    def to_xarray(
-        data_file: h5py.File,
-        variables: Collection[str | IDSVariableModel],
-        missing_ok: bool = False,
-        empty_ok: bool = False,
-    ) -> xr.Dataset:
-        """Return dataset for given variables.
-
-        Parameters
-        ----------
-        data_file : h5py.File
-            Open hdf5 file
-        variables : Collection[str | IDSVariableModel]]
-            List of data variables
-        missing_ok : bool
-            Ignore missing variables from dataset
-        empty_ok : bool
-            Add empty fields to output
-
-        Returns
-        -------
-        ds : xr.Dataset
-            Return query as Dataset
-        """
-        xr_data_vars: dict[str, tuple[list[str], np.ndarray]] = {}
-
-        variables = var_lookup.lookup(variables)
-
-        for var in variables:
-            key, slices = _var_path_to_hdf5_key_and_slices(var.path)
-
-            if key not in data_file:
-                if missing_ok:
-                    continue
-                raise MissingVarError(
-                    f'{var.path} does not exist in data file (HDF5 key: {key!r}) .'
-                )
-
-            arr = data_file[key]
-
-            if (not empty_ok) and (arr.size == 0):
-                raise EmptyVarError(f'Variable {var.name!r} contains empty data.')
-
-            if len(slices) == 0:
-                xr_data_vars[var.name] = (var.dims, arr)
-            else:
-                xr_data_vars[var.name] = ([*var.dims], arr[slices])
-
-        ds = xr.Dataset(data_vars=xr_data_vars)
 
         return ds
 
