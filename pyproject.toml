@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 # https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
 [project]
 name = "imas2xarray"
-version = "0.2.0"
+version = "0.3.0"
 description = "Imas2xarray is a tool reading IMAS data in hdf5 format into xarray."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -168,7 +168,7 @@ quote-style = "single"
 indent-style = "space"
 
 [tool.bumpversion]
-current_version = "0.2.0"
+current_version = "0.3.0"
 
 [[tool.bumpversion.files]]
 filename = "src/imas2xarray/__init__.py"
