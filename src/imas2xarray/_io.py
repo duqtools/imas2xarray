@@ -4,6 +4,7 @@ dataset = handle.get_variables(variables=(x_var, y_var, time_var))
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Collection
 
@@ -119,8 +120,9 @@ class H5Handle:
     def __init__(self, path: Path | str):
         self.path = Path(path)
 
+    @contextmanager
     def open_ids(self, ids: str = 'core_profiles', mode='r') -> h5py.File:
-        """Map the data to a dict-like structure.
+        """Context manager to open the IDS file.
 
         Parameters
         ----------
@@ -134,7 +136,8 @@ class H5Handle:
         data_file = (self.path / ids).with_suffix('.h5')
         assert data_file.exists()
 
-        return h5py.File(data_file, mode)[ids]
+        with h5py.File(data_file, mode) as f:
+            yield f[ids]
 
     def get_all_variables(
         self,
@@ -211,12 +214,8 @@ class H5Handle:
             if var.ids != ids:
                 raise ValueError(f'Variable {var} does not belong to {ids}.')
 
-        # TODO: use with statement
-        group = self.open_ids(ids, 'r')
-
-        ds = self.to_xarray(group, variables=var_models, **kwargs)
-
-        group.file.close()
+        with self.open_ids(ids, 'r') as group:
+            ds = self.to_xarray(group, variables=var_models, **kwargs)
 
         if squash:
             ds = squash_placeholders(ds)
@@ -237,7 +236,7 @@ class H5Handle:
         data_file : h5py.File
             Open hdf5 file
         variables : Collection[str | IDSVariableModel]]
-            Dictionary of data variables
+            List of data variables
         missing_ok : bool
             Ignore missing variables from dataset
         empty_ok : bool
@@ -279,16 +278,17 @@ class H5Handle:
     def set_variables(
         self, dataset: xr.Dataset, *, ids: str, variables: None | Collection[str] = None
     ):
-        """Summary.
+        """Update variables in corresponding ids datafile.
 
         Parameters
         ----------
         dataset : xr.Dataset
-            Description
+            Dataset with variables to write. Their dimensions must match those of the
+            target dataset.
         ids : str
-            Description
+            IDS to write to.
         variables : Collection[str], optional
-            Description
+            List of data variables to write.
         """
         if not variables:
             variables = list(dataset.variables)
@@ -300,13 +300,10 @@ class H5Handle:
             if var.ids != ids:
                 raise ValueError(f'Variable {var} does not belong to {ids}.')
 
-        group = self.open_ids(ids, 'r+')
+        with self.open_ids(ids, 'r+') as group:
+            for var in var_models:
+                arr = dataset[var.name]
 
-        for var in var_models:
-            arr = dataset[var.name]
+                key, slices = _var_path_to_hdf5_key_and_slices(var.path)
 
-            key, slices = _var_path_to_hdf5_key_and_slices(var.path)
-
-            group[key][slices] = arr
-
-        group.file.close()
+                group[key][slices] = arr
