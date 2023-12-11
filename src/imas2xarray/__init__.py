@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._io import H5Handle, to_xarray
+from ._io import H5Handle, to_imas, to_xarray
 from ._lookup import VariableConfigLoader, var_lookup
 from ._models import IDSPath, VariableConfigModel
 from ._models import IDSVariableModel as Variable
@@ -30,6 +30,7 @@ __all__ = [
     'standardize_grid',
     'standardize_grid_and_time',
     'to_xarray',
+    'to_imas',
     'var_lookup',
     'VariableConfigLoader',
     'VariableConfigModel',

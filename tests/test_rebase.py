@@ -6,13 +6,13 @@ import xarray as xr
 from idsmapping_sample_data import sample_data
 
 from imas2xarray import (
-    H5Handle,
     Variable,
     rebase_on_grid,
     rebase_on_time,
     rezero_time,
     standardize_grid,
 )
+from imas2xarray._io import _mapping_to_xarray
 
 TIME_VAR = Variable(
     name='time',
@@ -44,7 +44,7 @@ def variables1d():
 
 @pytest.fixture
 def sample_dataset(variables1d):
-    ds = H5Handle.to_xarray(sample_data, variables=variables1d)
+    ds = _mapping_to_xarray(sample_data, variables=variables1d)
     ds_grid = standardize_grid(ds, old_dim='x', new_dim='xvar', group='time')
     return ds_grid
 

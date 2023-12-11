@@ -4,8 +4,8 @@ import pytest
 import xarray as xr
 from idsmapping_sample_data import sample_data
 
-from imas2xarray import H5Handle, Variable
-from imas2xarray._io import EmptyVarError, MissingVarError
+from imas2xarray import Variable
+from imas2xarray._io import EmptyVarError, MissingVarError, _mapping_to_xarray
 
 TIME_VAR = Variable(
     name='time',
@@ -233,7 +233,7 @@ def test_no_time_index(expected_dataset_no_index):
         ),
     ]
 
-    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    ds = _mapping_to_xarray(sample_data, variables=variables)
     xr.testing.assert_equal(ds, expected_dataset_no_index)
 
 
@@ -246,7 +246,7 @@ def test_0d(expected_dataset_0d):
             dims=['x'],
         ),
     ]
-    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    ds = _mapping_to_xarray(sample_data, variables=variables)
 
     xr.testing.assert_equal(ds, expected_dataset_0d)
 
@@ -268,7 +268,7 @@ def test_1d(expected_dataset_1d):
         ),
     ]
 
-    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    ds = _mapping_to_xarray(sample_data, variables=variables)
     xr.testing.assert_equal(ds, expected_dataset_1d)
 
 
@@ -289,7 +289,7 @@ def test_2d(expected_dataset_2d):
         ),
     ]
 
-    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    ds = _mapping_to_xarray(sample_data, variables=variables)
     xr.testing.assert_equal(ds, expected_dataset_2d)
 
 
@@ -310,7 +310,7 @@ def test_2d_ion(expected_dataset_2d_ion):
         ),
     ]
 
-    ds = H5Handle.to_xarray(sample_data, variables=variables)
+    ds = _mapping_to_xarray(sample_data, variables=variables)
     xr.testing.assert_equal(ds, expected_dataset_2d_ion)
 
 
@@ -320,9 +320,9 @@ def test_empty_var_ok():
     )
 
     with pytest.raises(EmptyVarError):
-        H5Handle.to_xarray(sample_data, variables=(EmptyVar,), empty_ok=False)
+        _mapping_to_xarray(sample_data, variables=(EmptyVar,), empty_ok=False)
 
-    ds = H5Handle.to_xarray(sample_data, variables=(EmptyVar,), empty_ok=True)
+    ds = _mapping_to_xarray(sample_data, variables=(EmptyVar,), empty_ok=True)
 
     assert ds['empty'].size == 0
 
@@ -336,5 +336,5 @@ def test_raise_on_non_existant():
     )
 
     with pytest.raises(MissingVarError):
-        H5Handle.to_xarray(sample_data, variables=(NonExistantVar,), missing_ok=True)
-        H5Handle.to_xarray(sample_data, variables=(NonExistantVar,), missing_ok=False)
+        _mapping_to_xarray(sample_data, variables=(NonExistantVar,), missing_ok=True)
+        _mapping_to_xarray(sample_data, variables=(NonExistantVar,), missing_ok=False)

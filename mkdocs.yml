@@ -7,7 +7,7 @@ nav:
   - Home: index.md
   - Variables: variables.md
   - Python API: api/index.md
-  - Plotting example: plotting_example.md
+  - Examples: examples.md
   - Notebook - Variables: notebooks/xarray.ipynb
   - Notebook - 2D data: notebooks/xarray-2D.ipynb
   - Notebook - Ions: notebooks/xarray-ions.ipynb
@@ -16,7 +16,6 @@ nav:
   - 🔗 Source code: https://github.com/duqtools/imas2xarray
   - 🔗 Issues: https://github.com/duqtools/imas2xarray/issues
   - 🔗 Duqtools: https://duqtools.readthedocs.io
-
 
 theme:
   name: material
