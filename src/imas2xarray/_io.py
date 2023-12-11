@@ -272,7 +272,7 @@ class H5Handle:
             else:
                 xr_data_vars[var.name] = ([*var.dims], arr[slices])
 
-        ds = xr.Dataset(data_vars=xr_data_vars)  # type: ignore
+        ds = xr.Dataset(data_vars=xr_data_vars)
 
         return ds
 
