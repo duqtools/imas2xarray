@@ -79,13 +79,14 @@ class VarLookup(UserDict):
         grouped_ids_vars = groupby(ids_vars, keyfunc=lambda var: var.ids)
         return grouped_ids_vars
 
-    def lookup(self, variables: Collection[(str | IDSVariableModel)]) -> list[IDSVariableModel]:
+    def lookup(self, variables: Collection[(str | IDSVariableModel)]) -> set[IDSVariableModel]:
         """Helper function to look up a bunch of variables.
 
         If str, look up the variable from the `var_lookup`. Else, check if
         the variable is an `IDSVariableModel`.
         """
-        var_models = []
+        var_models = set()
+
         for var in variables:
             if isinstance(var, str):
                 if var.endswith(ERROR_SUFFIX):
@@ -94,7 +95,9 @@ class VarLookup(UserDict):
                     var = self[var]
             if not isinstance(var, IDSVariableModel):
                 raise ValueError(f'Cannot lookup variable with type {type(var)}')
-            var_models.append(var)
+
+            var_models.add(var)
+
         return var_models
 
 

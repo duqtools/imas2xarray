@@ -83,6 +83,9 @@ class IDSVariableModel(IDSPath):
         )
     )
 
+    def __hash__(self) -> int:
+        return self.name.__hash__()
+
 
 class VariableConfigModel(RootModel):
     root: list[IDSVariableModel]
