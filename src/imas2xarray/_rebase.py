@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def rezero_time(ds: xr.Dataset, *, start: int = 0) -> None:
+def rezero_time(ds: xr.Dataset, *, start: int = 0, key: str = 'time') -> None:
     """Standardize the time within a dataset by setting the first timestep to
     0.
 
@@ -21,10 +21,12 @@ def rezero_time(ds: xr.Dataset, *, start: int = 0) -> None:
     ----------
     ds : xr.Dataset
         Source dataset
+    key : str
+        Name of the time dimension
     start : int, optional
         Where to start the returned time series
     """
-    ds['time'] = ds['time'] - ds['time'][0] + start
+    ds[key] = ds[key] - ds[key][0] + start
 
 
 def squash_placeholders(ds: xr.Dataset) -> xr.Dataset:
