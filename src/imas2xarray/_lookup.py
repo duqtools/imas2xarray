@@ -6,7 +6,7 @@ import os
 import sys
 from collections import UserDict
 from pathlib import Path, PosixPath
-from typing import Any, Collection, Hashable
+from typing import Any, Hashable, Iterable
 
 from pydantic_yaml import parse_yaml_raw_as
 
@@ -80,13 +80,13 @@ class VarLookup(UserDict):
         return grouped_ids_vars
 
     def lookup(
-        self, variables: Collection[(str | IDSVariableModel)], skip_missing: bool = False
+        self, variables: Iterable[(str | IDSVariableModel)], skip_missing: bool = False
     ) -> set[IDSVariableModel]:
         """Helper function to look up a bunch of variables.
 
         Parameters
         ----------
-        variables : Collection[(str | IDSVariableModel)]
+        variables : Iterable[(str | IDSVariableModel)]
             List of variables to load. If str, look up the variable from the `var_lookup`.
             Else, ensure the variable is an `IDSVariableModel`.
         skip_missing : bool
