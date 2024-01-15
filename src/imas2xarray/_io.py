@@ -238,7 +238,8 @@ class H5Handle:
         """Get variables from data set.
 
         This function looks up the data location from the
-        `imas2xarray.var_lookup` table, and returns
+        `imas2xarray.var_lookup` table, and returns an xarray dataset.
+        Variable dimensions are automatically retrieved if available.
 
         Parameters
         ----------
@@ -263,8 +264,9 @@ class H5Handle:
         """
         var_models = var_lookup.lookup(variables)
 
+        # Attempt to automatically load associated dimensions
         dims = {dim for variable in var_models for dim in variable.dims}
-        var_models |= var_lookup.lookup(dims)
+        var_models |= var_lookup.lookup(dims, skip_missing=True)
 
         for var in var_models:
             if var.ids != ids:
