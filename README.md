@@ -10,7 +10,9 @@
 
 # imas2xarray
 
-**Imas2xarray** is a library that makes it as simple and intuitive as possible to load an IMAS dataset in HDF5 format into Python. There is no need to manually define the paths or fiddle with the different dimensions and long keys.
+**Imas2xarray** is a library that makes it as simple and intuitive as possible to read and write IMAS data in HDF5 format with Python. There is no need to manually define the paths or fiddle with the different dimensions and long keys.
+
+## Reading
 
 ```python
 >>> from imas2xarray import to_xarray
@@ -34,6 +36,20 @@ Data variables: (12/14)
     n_e             (time, rho_tor_norm) float64 7.976e+19 ... 1.742e+19
     p_i             (time, ion, rho_tor_norm) float64 1.242e+05 ... 0.2948
     n_e_tot         (time, rho_tor_norm) float64 7.976e+19 ... 1.742e+19
+```
+
+## Writing
+
+```python
+from imas2xarray import to_imas
+
+ds['t_e'] *= 1.1
+
+to_imas(
+    path,
+    dataset=ds,
+    ids=ids
+)
 ```
 
 For more advanced use-cases and examples, please see the [documentation](https://imas2xarray.readthedocs.io).
