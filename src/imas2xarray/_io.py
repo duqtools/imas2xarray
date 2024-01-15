@@ -64,7 +64,7 @@ def _var_path_to_hdf5_key_and_slices(path: str) -> tuple[str, tuple[slice | int,
 
 def _mapping_to_xarray(
     data_file: h5py.File,
-    variables: Iterable[(str | IDSVariableModel)],
+    variables: Iterable[str | IDSVariableModel],
     missing_ok: bool = False,
     empty_ok: bool = False,
 ) -> xr.Dataset:
@@ -116,7 +116,7 @@ def _mapping_to_xarray(
 
 
 def to_xarray(
-    path: str | Path, *, ids: str, variables: None | Iterable[(str | IDSVariableModel)] = None
+    path: str | Path, *, ids: str, variables: None | Iterable[str | IDSVariableModel] = None
 ) -> xr.Dataset:
     """Load IDS from given path to IMAS data into an xarray dataset.
 
@@ -128,7 +128,7 @@ def to_xarray(
         Path to the data
     ids : str
         The IDS to load (i.e. 'core_profiles')
-    variables : None | list[str], optional
+    variables : None | Iterable[str | Variable], optional
         List of variables to load. If None, attempt to load
         all variables known to `imas2xarray`
 
@@ -150,7 +150,7 @@ def to_imas(
     dataset: xr.Dataset,
     *,
     ids: str,
-    variables: None | Iterable[(str | IDSVariableModel)] = None,
+    variables: None | Iterable[str | IDSVariableModel] = None,
 ):
     """Write variables in xarray dataset back to IMAS data at given path.
 
@@ -164,7 +164,7 @@ def to_imas(
         Input dataset
     ids : str
         The IDS to write to (i.e. 'core_profiles')
-    variables : Iterable[str]
+    variables : Iterable[str | Variable]
         List of variables to write back. If None, attempt to write back
         all variables known to `imas2xarray`
     """
@@ -213,7 +213,7 @@ class H5Handle:
         ----------
         ids : str
             The IDS to write to (i.e. 'core_profiles')
-        extra_variables : Iterable[IDSVariableModel]
+        extra_variables : Iterable[Variable]
             Extra variables to load in addition to the ones known through the config
         squash : bool
             Squash placeholder variables
@@ -233,7 +233,7 @@ class H5Handle:
 
     def get_variables(
         self,
-        variables: Iterable[(str | IDSVariableModel)],
+        variables: Iterable[str | IDSVariableModel],
         *,
         ids: str,
         squash: bool = True,
@@ -247,7 +247,7 @@ class H5Handle:
 
         Parameters
         ----------
-        variables : Iterable[Union[str, IDSVariableModel]]
+        variables : Iterable[str | Variable]
             Variable names of the data to load.
         ids : str
             The IDS to write to (i.e. 'core_profiles')
@@ -289,7 +289,7 @@ class H5Handle:
         dataset: xr.Dataset,
         *,
         ids: str,
-        variables: None | Iterable[(str | IDSVariableModel)] = None,
+        variables: None | Iterable[str | IDSVariableModel] = None,
     ):
         """Update variables in corresponding ids datafile.
 
@@ -300,7 +300,7 @@ class H5Handle:
             target dataset.
         ids : str
             IDS to write to.
-        variables : Iterable[str], optional
+        variables : Iterable[str | Variable], optional
             List of data variables to write.
         """
         if not variables:
