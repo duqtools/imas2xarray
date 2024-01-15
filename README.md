@@ -41,15 +41,15 @@ Data variables: (12/14)
 ## Writing
 
 ```python
-from imas2xarray import to_imas
-
-ds['t_e'] *= 1.1
-
-to_imas(
-    path,
-    dataset=ds,
-    ids=ids
-)
+>>> from imas2xarray import to_imas
+>>>
+>>> ds['t_e'] *= 1.1
+>>>
+>>> to_imas(
+>>>     path,
+>>>     dataset=ds,
+>>>     ids=ids
+>>> )
 ```
 
 For more advanced use-cases and examples, please see the [documentation](https://imas2xarray.readthedocs.io).
