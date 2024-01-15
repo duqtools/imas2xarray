@@ -136,3 +136,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# data
+*.h5
+*.hdf5
+notebooks/1
+notebooks/2
+notebooks/3
